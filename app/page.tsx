@@ -8,6 +8,9 @@ import { ExperienceEditor } from '@/components/editor/experience-editor';
 import { EducationEditor } from '@/components/editor/education-editor';
 import { ProjectsEditor } from '@/components/editor/projects-editor';
 import { SkillsEditor } from '@/components/editor/skills-editor';
+import { CertificationsEditor } from '@/components/editor/certifications-editor';
+import { AchievementsEditor } from '@/components/editor/achievements-editor';
+import { ThemeCustomizer } from '@/components/theme/theme-customizer';
 import { Button } from '@/components/ui/button';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { ScrollArea } from '@/components/ui/scroll-area';
@@ -54,48 +57,50 @@ export default function ResumePage() {
     <div className="flex flex-col h-screen bg-gradient-to-br from-slate-50 to-slate-100">
       {/* Header */}
       <header className="bg-white border-b border-slate-200 shadow-sm">
-        <div className="flex items-center justify-between px-6 py-4">
-          <div className="flex items-center gap-3">
-            <div className="w-10 h-10 bg-gradient-to-br from-blue-600 to-indigo-600 rounded-lg flex items-center justify-center">
-              <FileText className="h-6 w-6 text-white" />
-            </div>
-            <div>
-              <h1 className="text-xl font-bold text-slate-900">Resume Builder Pro</h1>
-              <p className="text-xs text-slate-500">Create your professional resume in minutes</p>
+        <div className="px-4 sm:px-6 py-4">
+          <div className="flex items-center justify-between mb-3 sm:mb-0">
+            <div className="flex items-center gap-3">
+              <div className="w-10 h-10 bg-gradient-to-br from-blue-600 to-indigo-600 rounded-lg flex items-center justify-center">
+                <FileText className="h-6 w-6 text-white" />
+              </div>
+              <div>
+                <h1 className="text-lg sm:text-xl font-bold text-slate-900">Resume Builder Pro</h1>
+                <p className="text-xs text-slate-500 hidden sm:block">Create your professional resume in minutes</p>
+              </div>
             </div>
           </div>
 
-          <div className="flex items-center gap-2">
-            <Button variant="outline" size="sm" onClick={loadSampleData}>
-              <Sparkles className="h-4 w-4 mr-2" />
-              Load Sample
+          <div className="grid grid-cols-4 gap-2 sm:flex sm:items-center sm:justify-end sm:gap-2">
+            <Button variant="outline" className="w-full sm:w-auto" onClick={loadSampleData}>
+              <Sparkles className="h-5 w-5 sm:h-4 sm:w-4 sm:mr-2" />
+              <span className="hidden sm:inline">Load Sample</span>
             </Button>
-            <Button variant="outline" size="sm" onClick={resetResume}>
-              Reset
+            <Button variant="outline" className="w-full sm:w-auto" onClick={resetResume}>
+              <span className="text-xl sm:text-base sm:hidden">↻</span>
+              <span className="hidden sm:inline">Reset</span>
             </Button>
             <Button
               variant="outline"
-              size="sm"
               onClick={() => setShowPreview(!showPreview)}
-              className="lg:hidden"
+              className="w-full sm:w-auto lg:hidden"
             >
-              <Eye className="h-4 w-4 mr-2" />
-              {showPreview ? 'Hide' : 'Show'} Preview
+              <Eye className="h-5 w-5 sm:h-4 sm:w-4 sm:mr-2" />
+              <span className="hidden sm:inline">{showPreview ? 'Hide' : 'Show'} Preview</span>
             </Button>
-            <Button size="sm" onClick={handleExportPDF} className="bg-gradient-to-r from-blue-600 to-indigo-600">
-              <Download className="h-4 w-4 mr-2" />
-              Export
+            <Button onClick={handleExportPDF} className="w-full sm:w-auto bg-gradient-to-r from-blue-600 to-indigo-600">
+              <Download className="h-5 w-5 sm:h-4 sm:w-4 sm:mr-2" />
+              <span className="hidden sm:inline">Export</span>
             </Button>
           </div>
         </div>
       </header>
 
       {/* Main Content */}
-      <div className="flex-1 flex ">
+      <div className="flex-1 flex overflow-hidden">
         {/* Editor Panel */}
-        <div className={`w-full lg:w-1/2 border-r border-slate-200 bg-white ${showPreview ? 'hidden lg:block' : ''}`}>
+        <div className={`w-full lg:w-1/2 border-r border-slate-200 bg-white flex flex-col ${showPreview ? 'hidden lg:flex' : ''}`}>
           <Tabs value={activeTab} onValueChange={setActiveTab} className="h-full flex flex-col">
-            <div className="border-b border-slate-200 bg-slate-50/50 px-4">
+            <div className="border-b border-slate-200 bg-slate-50/50 px-4 flex-shrink-0">
               <TabsList className="w-full justify-start h-auto p-0 bg-transparent">
                 <TabsTrigger
                   value="personal"
@@ -151,6 +156,8 @@ export default function ResumePage() {
                 <TabsContent value="more" className="mt-0">
                   <div className="space-y-6">
                     <ProjectsEditor />
+                    <CertificationsEditor />
+                    <AchievementsEditor />
                   </div>
                 </TabsContent>
               </div>
@@ -159,32 +166,27 @@ export default function ResumePage() {
         </div>
 
         {/* Preview Panel */}
-        <div className={`w-full lg:w-1/2 bg-slate-100 ${!showPreview ? 'hidden lg:block' : ''}`}>
-          <div className="h-full flex flex-col">
-            <div className="bg-white border-b border-slate-200 px-6 py-3 flex items-center justify-between">
-              <h2 className="font-semibold text-slate-700 flex items-center gap-2">
-                <Eye className="h-4 w-4" />
-                Live Preview
-              </h2>
-              <div className="flex items-center gap-2">
-                <Button variant="ghost" size="sm">
-                  <Palette className="h-4 w-4 mr-2" />
-                  Theme
-                </Button>
+        <div className={`w-full lg:w-1/2 bg-slate-100 flex flex-col overflow-hidden ${!showPreview ? 'hidden lg:flex' : ''}`}>
+          <div className="bg-white border-b border-slate-200 px-6 py-3 flex items-center justify-between flex-shrink-0">
+            <h2 className="font-semibold text-slate-700 flex items-center gap-2">
+              <Eye className="h-4 w-4" />
+              Live Preview
+            </h2>
+            <div className="flex items-center gap-2">
+              <ThemeCustomizer />
+            </div>
+          </div>
+
+          <div className="flex-1 overflow-y-auto bg-white">
+            <div className="max-w-[21cm] mx-auto">
+              <div
+                ref={previewRef}
+                className="w-full bg-white"
+                style={{ minHeight: '100vh' }}
+              >
+                <ResumePreview />
               </div>
             </div>
-
-            <ScrollArea className="flex-1">
-              <div className="p-8 flex justify-center items-start">
-                <div
-                  ref={previewRef}
-                  className="w-full max-w-[21cm] shadow-2xl mx-auto"
-                  style={{ minHeight: '29.7cm' }}
-                >
-                  <ResumePreview />
-                </div>
-              </div>
-            </ScrollArea>
           </div>
         </div>
       </div>

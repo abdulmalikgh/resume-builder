@@ -335,7 +335,7 @@ export function ResumePreview() {
   return (
     <div
       id="resume-preview"
-      className="w-full min-h-full bg-white shadow-lg"
+      className="w-full min-h-full bg-white"
       style={{
         padding: `${settings.margins}px`,
         fontSize: `${settings.fontSize}px`,
