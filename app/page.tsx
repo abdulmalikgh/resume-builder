@@ -1,8 +1,9 @@
 'use client';
 
-import { useState, useRef } from 'react';
+import { useState } from 'react';
+import dynamic from 'next/dynamic';
 import { useResumeStore } from '@/store/resume-store';
-import { ResumePreview } from '@/components/resume/resume-preview';
+import { useResumePDF } from '@/hooks/use-resume-pdf';
 import { PersonalInfoEditor } from '@/components/editor/personal-info-editor';
 import { ExperienceEditor } from '@/components/editor/experience-editor';
 import { EducationEditor } from '@/components/editor/education-editor';
@@ -16,79 +17,32 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { ScrollArea } from '@/components/ui/scroll-area';
 import {
   Download,
-  Palette,
   Eye,
   FileText,
   Sparkles,
-  PanelLeftClose,
   PanelLeftOpen,
+  Loader2,
 } from 'lucide-react';
-import html2canvas from 'html2canvas';
-import jsPDF from 'jspdf';
+
+// Import PDF viewer dynamically to avoid SSR issues
+const ResumePDFViewer = dynamic(
+  () => import('@/components/resume/resume-pdf-viewer').then((mod) => mod.ResumePDFViewer),
+  {
+    ssr: false,
+    loading: () => (
+      <div className="flex items-center justify-center h-full">
+        <Loader2 className="h-8 w-8 animate-spin text-blue-600" />
+      </div>
+    ),
+  }
+);
 
 export default function ResumePage() {
-  const { loadSampleData, resetResume, resumeData } = useResumeStore();
+  const { loadSampleData, resetResume } = useResumeStore();
+  const { blob, isGenerating, downloadPDF } = useResumePDF();
   const [activeTab, setActiveTab] = useState('personal');
   const [showPreview, setShowPreview] = useState(true);
-  const previewRef = useRef<HTMLDivElement>(null);
-
-  const handleExportPDF = async () => {
-    const element = document.getElementById('resume-preview');
-    if (!element) return;
-
-    try {
-      // Capture the resume as a canvas with high quality
-      const canvas = await html2canvas(element, {
-        scale: 2,
-        useCORS: true,
-        logging: false,
-        backgroundColor: '#ffffff',
-      });
-
-      // Convert canvas to image
-      const imgData = canvas.toDataURL('image/png');
-
-      // A4 dimensions in mm
-      const pdfWidth = 210;
-      const pdfHeight = 297;
-
-      // Calculate image dimensions
-      const imgWidth = pdfWidth;
-      const imgHeight = (canvas.height * pdfWidth) / canvas.width;
-
-      // Create PDF
-      const pdf = new jsPDF({
-        orientation: 'portrait',
-        unit: 'mm',
-        format: 'a4',
-      });
-
-      let heightLeft = imgHeight;
-      let position = 0;
-
-      // Add first page
-      pdf.addImage(imgData, 'PNG', 0, position, imgWidth, imgHeight);
-      heightLeft -= pdfHeight;
-
-      // Add additional pages if needed
-      while (heightLeft > 0) {
-        position = heightLeft - imgHeight;
-        pdf.addPage();
-        pdf.addImage(imgData, 'PNG', 0, position, imgWidth, imgHeight);
-        heightLeft -= pdfHeight;
-      }
-
-      // Generate filename from name
-      const fileName = resumeData.personalInfo.fullName
-        ? `${resumeData.personalInfo.fullName.replace(/\s+/g, '_')}_Resume.pdf`
-        : 'Resume.pdf';
-
-      // Download PDF
-      pdf.save(fileName);
-    } catch (error) {
-      console.error('Error exporting resume:', error);
-    }
-  };
+  const [scale, setScale] = useState(1.0);
 
   return (
     <div className="flex flex-col h-screen bg-gradient-to-br from-slate-50 to-slate-100">
@@ -124,9 +78,17 @@ export default function ResumePage() {
               <Eye className="h-5 w-5 sm:h-4 sm:w-4 sm:mr-2" />
               <span className="hidden sm:inline">{showPreview ? 'Hide' : 'Show'} Preview</span>
             </Button>
-            <Button onClick={handleExportPDF} className="w-full sm:w-auto bg-gradient-to-r from-blue-600 to-indigo-600">
-              <Download className="h-5 w-5 sm:h-4 sm:w-4 sm:mr-2" />
-              <span className="hidden sm:inline">Export</span>
+            <Button
+              onClick={downloadPDF}
+              disabled={isGenerating || !blob}
+              className="w-full sm:w-auto bg-gradient-to-r from-blue-600 to-indigo-600"
+            >
+              {isGenerating ? (
+                <Loader2 className="h-5 w-5 sm:h-4 sm:w-4 sm:mr-2 animate-spin" />
+              ) : (
+                <Download className="h-5 w-5 sm:h-4 sm:w-4 sm:mr-2" />
+              )}
+              <span className="hidden sm:inline">{isGenerating ? 'Generating...' : 'Export'}</span>
             </Button>
           </div>
         </div>
@@ -225,23 +187,37 @@ export default function ResumePage() {
           <div className="bg-white border-b border-slate-200 px-6 py-3 flex items-center justify-between flex-shrink-0">
             <h2 className="font-semibold text-slate-700 flex items-center gap-2">
               <Eye className="h-4 w-4" />
-              Live Preview
+              PDF Preview
+              {isGenerating && <Loader2 className="h-3 w-3 animate-spin text-blue-600" />}
             </h2>
             <div className="flex items-center gap-2">
               <ThemeCustomizer />
+              <div className="flex items-center gap-2 border-l pl-2">
+                <Button
+                  variant="outline"
+                  size="sm"
+                  onClick={() => setScale(Math.max(0.5, scale - 0.1))}
+                  disabled={scale <= 0.5}
+                >
+                  -
+                </Button>
+                <span className="text-xs text-slate-600 min-w-[3rem] text-center">
+                  {Math.round(scale * 100)}%
+                </span>
+                <Button
+                  variant="outline"
+                  size="sm"
+                  onClick={() => setScale(Math.min(2, scale + 0.1))}
+                  disabled={scale >= 2}
+                >
+                  +
+                </Button>
+              </div>
             </div>
           </div>
 
-          <div className="flex-1 overflow-y-auto bg-white">
-            <div className="max-w-[21cm] mx-auto">
-              <div
-                ref={previewRef}
-                className="w-full bg-white"
-                style={{ minHeight: '100vh' }}
-              >
-                <ResumePreview />
-              </div>
-            </div>
+          <div className="flex-1 overflow-hidden">
+            <ResumePDFViewer blob={blob} scale={scale} />
           </div>
         </div>
       </div>
