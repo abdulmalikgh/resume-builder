@@ -24,9 +24,10 @@ import {
   PanelLeftOpen,
 } from 'lucide-react';
 import html2canvas from 'html2canvas';
+import jsPDF from 'jspdf';
 
 export default function ResumePage() {
-  const { loadSampleData, resetResume } = useResumeStore();
+  const { loadSampleData, resetResume, resumeData } = useResumeStore();
   const [activeTab, setActiveTab] = useState('personal');
   const [showPreview, setShowPreview] = useState(true);
   const previewRef = useRef<HTMLDivElement>(null);
@@ -36,6 +37,7 @@ export default function ResumePage() {
     if (!element) return;
 
     try {
+      // Capture the resume as a canvas with high quality
       const canvas = await html2canvas(element, {
         scale: 2,
         useCORS: true,
@@ -43,11 +45,46 @@ export default function ResumePage() {
         backgroundColor: '#ffffff',
       });
 
+      // Convert canvas to image
       const imgData = canvas.toDataURL('image/png');
-      const link = document.createElement('a');
-      link.download = 'resume.png';
-      link.href = imgData;
-      link.click();
+
+      // A4 dimensions in mm
+      const pdfWidth = 210;
+      const pdfHeight = 297;
+
+      // Calculate image dimensions
+      const imgWidth = pdfWidth;
+      const imgHeight = (canvas.height * pdfWidth) / canvas.width;
+
+      // Create PDF
+      const pdf = new jsPDF({
+        orientation: 'portrait',
+        unit: 'mm',
+        format: 'a4',
+      });
+
+      let heightLeft = imgHeight;
+      let position = 0;
+
+      // Add first page
+      pdf.addImage(imgData, 'PNG', 0, position, imgWidth, imgHeight);
+      heightLeft -= pdfHeight;
+
+      // Add additional pages if needed
+      while (heightLeft > 0) {
+        position = heightLeft - imgHeight;
+        pdf.addPage();
+        pdf.addImage(imgData, 'PNG', 0, position, imgWidth, imgHeight);
+        heightLeft -= pdfHeight;
+      }
+
+      // Generate filename from name
+      const fileName = resumeData.personalInfo.fullName
+        ? `${resumeData.personalInfo.fullName.replace(/\s+/g, '_')}_Resume.pdf`
+        : 'Resume.pdf';
+
+      // Download PDF
+      pdf.save(fileName);
     } catch (error) {
       console.error('Error exporting resume:', error);
     }
@@ -100,39 +137,53 @@ export default function ResumePage() {
         {/* Editor Panel */}
         <div className={`w-full lg:w-1/2 border-r border-slate-200 bg-white flex flex-col ${showPreview ? 'hidden lg:flex' : ''}`}>
           <Tabs value={activeTab} onValueChange={setActiveTab} className="h-full flex flex-col">
-            <div className="border-b border-slate-200 bg-slate-50/50 px-4 flex-shrink-0">
-              <TabsList className="w-full justify-start h-auto p-0 bg-transparent">
-                <TabsTrigger
-                  value="personal"
-                  className="data-[state=active]:bg-white data-[state=active]:shadow-sm rounded-t-lg rounded-b-none border-b-2 border-transparent data-[state=active]:border-blue-600"
-                >
-                  Personal Info
-                </TabsTrigger>
-                <TabsTrigger
-                  value="experience"
-                  className="data-[state=active]:bg-white data-[state=active]:shadow-sm rounded-t-lg rounded-b-none border-b-2 border-transparent data-[state=active]:border-blue-600"
-                >
-                  Experience
-                </TabsTrigger>
-                <TabsTrigger
-                  value="skills"
-                  className="data-[state=active]:bg-white data-[state=active]:shadow-sm rounded-t-lg rounded-b-none border-b-2 border-transparent data-[state=active]:border-blue-600"
-                >
-                  Skills
-                </TabsTrigger>
-                <TabsTrigger
-                  value="education"
-                  className="data-[state=active]:bg-white data-[state=active]:shadow-sm rounded-t-lg rounded-b-none border-b-2 border-transparent data-[state=active]:border-blue-600"
-                >
-                  Education
-                </TabsTrigger>
-                <TabsTrigger
-                  value="more"
-                  className="data-[state=active]:bg-white data-[state=active]:shadow-sm rounded-t-lg rounded-b-none border-b-2 border-transparent data-[state=active]:border-blue-600"
-                >
-                  More
-                </TabsTrigger>
-              </TabsList>
+            <div className="border-b border-slate-200 bg-slate-50/50 flex-shrink-0 overflow-x-auto custom-scrollbar">
+              <div className="px-4 min-w-max">
+                <TabsList className="inline-flex justify-start h-auto p-0 bg-transparent">
+                  <TabsTrigger
+                    value="personal"
+                    className="data-[state=active]:bg-white data-[state=active]:shadow-sm rounded-t-lg rounded-b-none border-b-2 border-transparent data-[state=active]:border-blue-600 whitespace-nowrap"
+                  >
+                    Personal
+                  </TabsTrigger>
+                  <TabsTrigger
+                    value="experience"
+                    className="data-[state=active]:bg-white data-[state=active]:shadow-sm rounded-t-lg rounded-b-none border-b-2 border-transparent data-[state=active]:border-blue-600 whitespace-nowrap"
+                  >
+                    Experience
+                  </TabsTrigger>
+                  <TabsTrigger
+                    value="education"
+                    className="data-[state=active]:bg-white data-[state=active]:shadow-sm rounded-t-lg rounded-b-none border-b-2 border-transparent data-[state=active]:border-blue-600 whitespace-nowrap"
+                  >
+                    Education
+                  </TabsTrigger>
+                  <TabsTrigger
+                    value="projects"
+                    className="data-[state=active]:bg-white data-[state=active]:shadow-sm rounded-t-lg rounded-b-none border-b-2 border-transparent data-[state=active]:border-blue-600 whitespace-nowrap"
+                  >
+                    Projects
+                  </TabsTrigger>
+                  <TabsTrigger
+                    value="skills"
+                    className="data-[state=active]:bg-white data-[state=active]:shadow-sm rounded-t-lg rounded-b-none border-b-2 border-transparent data-[state=active]:border-blue-600 whitespace-nowrap"
+                  >
+                    Skills
+                  </TabsTrigger>
+                  <TabsTrigger
+                    value="certifications"
+                    className="data-[state=active]:bg-white data-[state=active]:shadow-sm rounded-t-lg rounded-b-none border-b-2 border-transparent data-[state=active]:border-blue-600 whitespace-nowrap"
+                  >
+                    Certifications
+                  </TabsTrigger>
+                  <TabsTrigger
+                    value="achievements"
+                    className="data-[state=active]:bg-white data-[state=active]:shadow-sm rounded-t-lg rounded-b-none border-b-2 border-transparent data-[state=active]:border-blue-600 whitespace-nowrap"
+                  >
+                    Achievements
+                  </TabsTrigger>
+                </TabsList>
+              </div>
             </div>
 
             <ScrollArea className="flex-1">
@@ -145,20 +196,24 @@ export default function ResumePage() {
                   <ExperienceEditor />
                 </TabsContent>
 
-                <TabsContent value="skills" className="mt-0">
-                  <SkillsEditor />
-                </TabsContent>
-
                 <TabsContent value="education" className="mt-0">
                   <EducationEditor />
                 </TabsContent>
 
-                <TabsContent value="more" className="mt-0">
-                  <div className="space-y-6">
-                    <ProjectsEditor />
-                    <CertificationsEditor />
-                    <AchievementsEditor />
-                  </div>
+                <TabsContent value="projects" className="mt-0">
+                  <ProjectsEditor />
+                </TabsContent>
+
+                <TabsContent value="skills" className="mt-0">
+                  <SkillsEditor />
+                </TabsContent>
+
+                <TabsContent value="certifications" className="mt-0">
+                  <CertificationsEditor />
+                </TabsContent>
+
+                <TabsContent value="achievements" className="mt-0">
+                  <AchievementsEditor />
                 </TabsContent>
               </div>
             </ScrollArea>

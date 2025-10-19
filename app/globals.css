@@ -64,5 +64,51 @@
   }
   body {
     @apply bg-background text-foreground;
+    font-feature-settings: "cv02", "cv03", "cv04", "cv11";
+  }
+
+  /* Smooth scrolling */
+  html {
+    scroll-behavior: smooth;
+  }
+}
+
+@layer components {
+  /* Enhanced Input Styles */
+  input[type="text"],
+  input[type="email"],
+  input[type="tel"],
+  input[type="month"],
+  input[type="url"],
+  textarea {
+    @apply transition-all duration-200;
+  }
+
+  input[type="text"]:focus,
+  input[type="email"]:focus,
+  input[type="tel"]:focus,
+  input[type="month"]:focus,
+  input[type="url"]:focus,
+  textarea:focus {
+    @apply ring-2 ring-blue-500/20 border-blue-500;
+  }
+
+  /* Custom Scrollbar */
+  .custom-scrollbar::-webkit-scrollbar {
+    width: 8px;
+    height: 8px;
+  }
+
+  .custom-scrollbar::-webkit-scrollbar-track {
+    @apply bg-slate-100 rounded-full;
+  }
+
+  .custom-scrollbar::-webkit-scrollbar-thumb {
+    @apply bg-slate-300 rounded-full hover:bg-slate-400;
+  }
+
+  /* Smooth hover transitions */
+  button, a {
+    @apply transition-all duration-200;
   }
 }

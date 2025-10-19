@@ -335,12 +335,14 @@ export function ResumePreview() {
   return (
     <div
       id="resume-preview"
-      className="w-full min-h-full bg-white"
+      className="w-full min-h-full bg-white shadow-lg"
       style={{
         padding: `${settings.margins}px`,
         fontSize: `${settings.fontSize}px`,
         lineHeight: settings.lineHeight,
         fontFamily: theme.fonts.body,
+        maxWidth: '21cm',
+        margin: '0 auto',
       }}
     >
       {/* Header */}
