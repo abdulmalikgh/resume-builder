@@ -24,95 +24,105 @@ type Props = {
     accent: string;
     background: string;
   };
+  settings: {
+    fontSize: number;
+    lineHeight: number;
+    margins: number;
+  };
 };
 
-const createStyles = (colors: Props['themeColors']) => StyleSheet.create({
-  page: {
-    backgroundColor: 'white',
-    padding: 40,
-    fontFamily: 'Roboto',
-    fontSize: 10,
-    lineHeight: 1.4,
-    color: colors.text,
-  },
-  header: {
-    marginBottom: 20,
-  },
-  name: {
-    fontSize: 24,
-    fontWeight: 700,
-    color: colors.text,
-    marginBottom: 5,
-    lineHeight: 1.2,
-  },
-  title: {
-    fontSize: 13,
-    color: colors.primary,
-    marginBottom: 12,
-    lineHeight: 1.3,
-  },
-  contactRow: {
-    flexDirection: 'row',
-    flexWrap: 'wrap',
-    gap: 12,
-    fontSize: 9,
+const createStyles = (colors: Props['themeColors'], settings: Props['settings']) => {
+  // Base font size - scale appropriately for PDF
+  const baseFontSize = settings.fontSize * 0.75; // Increased from 0.65 to 0.75 for larger text
+  const scaleFactor = baseFontSize / 10; // Relative to default 10pt
+
+  return StyleSheet.create({
+    page: {
+      backgroundColor: 'white',
+      padding: settings.margins,
+      fontFamily: 'Roboto',
+      fontSize: baseFontSize,
+      lineHeight: settings.lineHeight,
+      color: colors.text,
+    },
+    header: {
+      marginBottom: 20 * scaleFactor,
+    },
+    name: {
+      fontSize: 24 * scaleFactor,
+      fontWeight: 700,
+      color: colors.text,
+      marginBottom: 5 * scaleFactor,
+      lineHeight: 1.2,
+    },
+    title: {
+      fontSize: 13 * scaleFactor,
+      color: colors.primary,
+      marginBottom: 12 * scaleFactor,
+      lineHeight: 1.3,
+    },
+    contactRow: {
+      flexDirection: 'row',
+      flexWrap: 'wrap',
+      gap: 12 * scaleFactor,
+      fontSize: 9 * scaleFactor,
     color: colors.secondary,
-    marginBottom: 8,
+    marginBottom: 8 * scaleFactor,
   },
   contactItem: {
     flexDirection: 'row',
     alignItems: 'center',
   },
   summary: {
-    fontSize: 9,
+    fontSize: 9 * scaleFactor,
     lineHeight: 1.5,
     color: colors.text,
-    marginTop: 8,
+    marginTop: 8 * scaleFactor,
   },
   section: {
-    marginBottom: 16,
+    marginBottom: 16 * scaleFactor,
   },
   sectionTitle: {
-    fontSize: 14,
+    fontSize: 14 * scaleFactor,
     fontWeight: 700,
     color: colors.primary,
     borderBottomWidth: 2,
     borderBottomColor: colors.primary,
-    paddingBottom: 4,
-    marginBottom: 8,
+    paddingBottom: 4 * scaleFactor,
+    marginBottom: 8 * scaleFactor,
   },
   experienceItem: {
-    marginBottom: 12,
+    marginBottom: 12 * scaleFactor,
   },
   experienceHeader: {
     flexDirection: 'row',
     justifyContent: 'space-between',
-    marginBottom: 2,
+    marginBottom: 2 * scaleFactor,
   },
   jobTitle: {
-    fontSize: 11,
+    fontSize: 11 * scaleFactor,
     fontWeight: 700,
     color: colors.text,
   },
   company: {
-    fontSize: 10,
+    fontSize: 10 * scaleFactor,
     fontWeight: 500,
     color: colors.secondary,
-    marginBottom: 4,
+    marginBottom: 4 * scaleFactor,
   },
   date: {
-    fontSize: 9,
+    fontSize: 9 * scaleFactor,
     color: colors.secondary,
   },
   description: {
-    fontSize: 9,
+    fontSize: 9 * scaleFactor,
     color: colors.text,
     marginLeft: 12,
-    marginTop: 4,
+    marginTop: 4 * scaleFactor,
   },
   bulletPoint: {
     flexDirection: 'row',
-    marginBottom: 2,
+    marginBottom: 2 * scaleFactor,
   },
   bullet: {
     width: 4,
@@ -120,14 +130,14 @@ const createStyles = (colors: Props['themeColors']) => StyleSheet.create({
     borderRadius: 2,
     backgroundColor: colors.text,
     marginRight: 8,
-    marginTop: 4,
+    marginTop: 4 * scaleFactor,
   },
   bulletText: {
     flex: 1,
-    fontSize: 9,
+    fontSize: 9 * scaleFactor,
   },
   educationItem: {
-    marginBottom: 8,
+    marginBottom: 8 * scaleFactor,
     flexDirection: 'row',
     justifyContent: 'space-between',
   },
@@ -135,111 +145,112 @@ const createStyles = (colors: Props['themeColors']) => StyleSheet.create({
     flex: 1,
   },
   degree: {
-    fontSize: 10,
+    fontSize: 10 * scaleFactor,
     fontWeight: 700,
     color: colors.text,
   },
   institution: {
-    fontSize: 9,
+    fontSize: 9 * scaleFactor,
     color: colors.secondary,
-    marginTop: 2,
+    marginTop: 2 * scaleFactor,
   },
   projectItem: {
-    marginBottom: 10,
+    marginBottom: 10 * scaleFactor,
   },
   projectHeader: {
     flexDirection: 'row',
     justifyContent: 'space-between',
-    marginBottom: 4,
+    marginBottom: 4 * scaleFactor,
   },
   projectName: {
-    fontSize: 10,
+    fontSize: 10 * scaleFactor,
     fontWeight: 700,
     color: colors.text,
   },
   projectDescription: {
-    fontSize: 9,
+    fontSize: 9 * scaleFactor,
     color: colors.text,
-    marginBottom: 4,
+    marginBottom: 4 * scaleFactor,
   },
   techBadge: {
     backgroundColor: `${colors.accent}15`,
     color: colors.accent,
     padding: '2 6',
     marginRight: 4,
-    marginBottom: 4,
-    fontSize: 8,
+    marginBottom: 4 * scaleFactor,
+    fontSize: 8 * scaleFactor,
     borderRadius: 3,
   },
   techRow: {
     flexDirection: 'row',
     flexWrap: 'wrap',
-    marginBottom: 4,
+    marginBottom: 4 * scaleFactor,
   },
   skillsSection: {
-    marginBottom: 12,
+    marginBottom: 12 * scaleFactor,
   },
   skillCategory: {
-    fontSize: 9,
+    fontSize: 9 * scaleFactor,
     fontWeight: 700,
     color: colors.secondary,
-    marginBottom: 4,
+    marginBottom: 4 * scaleFactor,
   },
   skillBadgeRow: {
     flexDirection: 'row',
     flexWrap: 'wrap',
     gap: 4,
-    marginBottom: 8,
+    marginBottom: 8 * scaleFactor,
   },
   skillBadge: {
     backgroundColor: colors.primary,
     color: colors.background,
     padding: '3 8',
-    fontSize: 8,
+    fontSize: 8 * scaleFactor,
     borderRadius: 3,
   },
   certItem: {
     flexDirection: 'row',
     justifyContent: 'space-between',
-    marginBottom: 6,
+    marginBottom: 6 * scaleFactor,
   },
   certName: {
-    fontSize: 10,
+    fontSize: 10 * scaleFactor,
     fontWeight: 700,
     color: colors.text,
   },
   certIssuer: {
-    fontSize: 9,
+    fontSize: 9 * scaleFactor,
     color: colors.secondary,
-    marginTop: 2,
+    marginTop: 2 * scaleFactor,
   },
   achievementItem: {
-    marginBottom: 8,
+    marginBottom: 8 * scaleFactor,
   },
   achievementHeader: {
     flexDirection: 'row',
     justifyContent: 'space-between',
-    marginBottom: 2,
+    marginBottom: 2 * scaleFactor,
   },
   achievementTitle: {
-    fontSize: 10,
+    fontSize: 10 * scaleFactor,
     fontWeight: 700,
     color: colors.text,
   },
   achievementIssuer: {
-    fontSize: 9,
+    fontSize: 9 * scaleFactor,
     color: colors.secondary,
-    marginTop: 2,
+    marginTop: 2 * scaleFactor,
   },
   achievementDescription: {
-    fontSize: 9,
+    fontSize: 9 * scaleFactor,
     color: colors.text,
-    marginTop: 2,
+    marginTop: 2 * scaleFactor,
   },
-});
+  });
+};
 
-export function ResumePDFDocument({ resumeData, themeColors }: Props) {
-  const styles = createStyles(themeColors);
+export function ResumePDFDocument({ resumeData, themeColors, settings }: Props) {
+  const styles = createStyles(themeColors, settings);
   const { personalInfo, experience, education, projects, skills, certifications, achievements, sectionOrder } = resumeData;
 
   const formatDate = (dateStr: string) => {

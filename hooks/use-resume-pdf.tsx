@@ -5,91 +5,81 @@ import { pdf } from '@react-pdf/renderer';
 import { ResumePDFDocument } from '@/components/resume/resume-pdf-document';
 import { useResumeStore } from '@/store/resume-store';
 
-// Debounced queue for PDF rendering
-function createDebouncedQueue<T>(
-  callback: (items: Array<T>) => Promise<void>,
-  delay = 500
-) {
-  let items: Array<T> = [];
-  let timeoutId: NodeJS.Timeout | null = null;
-  let isProcessing = false;
-
-  function push(item: T) {
-    items.push(item);
-
-    if (timeoutId) {
-      clearTimeout(timeoutId);
-    }
-
-    timeoutId = setTimeout(async () => {
-      if (isProcessing) return;
-
-      isProcessing = true;
-      const chunk = [...items];
-      items = [];
-
-      await callback(chunk);
-      isProcessing = false;
-
-      // Process remaining items if any were added during processing
-      if (items.length > 0) {
-        push(items[0]);
-        items = items.slice(1);
-      }
-    }, delay);
-  }
-
-  return { push };
-}
-
 export function useResumePDF() {
   const [blob, setBlob] = useState<Blob | null>(null);
   const [isGenerating, setIsGenerating] = useState(false);
   const { resumeData, settings } = useResumeStore();
-  const settingsRef = useRef(settings);
+  const abortControllerRef = useRef<AbortController | null>(null);
 
-  // Update settings ref when settings change
   useEffect(() => {
-    settingsRef.current = settings;
-  }, [settings]);
+    // Cancel any pending generation
+    if (abortControllerRef.current) {
+      abortControllerRef.current.abort();
+    }
 
-  const queueRef = useRef(
-    createDebouncedQueue(async (updates: Array<typeof resumeData>) => {
-      const lastUpdate = updates[updates.length - 1];
+    const controller = new AbortController();
+    abortControllerRef.current = controller;
 
-      if (!lastUpdate) {
-        setBlob(null);
-        setIsGenerating(false);
-        return;
-      }
+    const timeoutId = setTimeout(async () => {
+      if (controller.signal.aborted) return;
 
       try {
         setIsGenerating(true);
+
         const themeColors = {
-          primary: settingsRef.current.theme.colors.primary,
-          secondary: settingsRef.current.theme.colors.secondary,
-          text: settingsRef.current.theme.colors.text,
-          accent: settingsRef.current.theme.colors.accent,
-          background: settingsRef.current.theme.colors.background,
+          primary: settings.theme.colors.primary,
+          secondary: settings.theme.colors.secondary,
+          text: settings.theme.colors.text,
+          accent: settings.theme.colors.accent,
+          background: settings.theme.colors.background,
         };
 
+        const pdfSettings = {
+          fontSize: settings.fontSize,
+          lineHeight: settings.lineHeight,
+          margins: settings.margins,
+        };
+
+        if (controller.signal.aborted) return;
+
         const newBlob = await pdf(
-          <ResumePDFDocument resumeData={lastUpdate} themeColors={themeColors} />
+          <ResumePDFDocument
+            resumeData={resumeData}
+            themeColors={themeColors}
+            settings={pdfSettings}
+          />
         ).toBlob();
 
-        setBlob(newBlob);
+        if (!controller.signal.aborted) {
+          setBlob(newBlob);
+        }
       } catch (e) {
-        console.error('Cannot create PDF:', e);
-        setBlob(null);
+        if (!controller.signal.aborted) {
+          console.error('Cannot create PDF:', e);
+          setBlob(null);
+        }
       } finally {
-        setIsGenerating(false);
+        if (!controller.signal.aborted) {
+          setIsGenerating(false);
+        }
       }
-    }, 300)
-  );
+    }, 2000); // 2 second debounce - only update after user stops typing
 
-  useEffect(() => {
-    queueRef.current.push(resumeData);
-  }, [resumeData, settings.theme.colors]);
+    return () => {
+      clearTimeout(timeoutId);
+      controller.abort();
+    };
+  }, [
+    resumeData,
+    settings.theme.colors.primary,
+    settings.theme.colors.secondary,
+    settings.theme.colors.text,
+    settings.theme.colors.accent,
+    settings.theme.colors.background,
+    settings.fontSize,
+    settings.lineHeight,
+    settings.margins,
+  ]);
 
   const downloadPDF = useCallback(async () => {
     if (!blob) return;

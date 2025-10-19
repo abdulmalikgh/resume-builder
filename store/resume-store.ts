@@ -110,7 +110,7 @@ export const useResumeStore = create<ResumeStore>()(
       settings: {
         theme: defaultTheme,
         fontSize: 14,
-        lineHeight: 1.6,
+        lineHeight: 1.3,
         margins: 40,
         showIcons: true,
         showVerificationBadges: true,
