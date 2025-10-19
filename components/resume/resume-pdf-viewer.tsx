@@ -21,6 +21,7 @@ function PDFIframe({
 }) {
   const isReady = dataReady === 'true';
   const iframeRef = useRef<HTMLIFrameElement>(null);
+  const [refreshKey, setRefreshKey] = useState(0);
 
   useEffect(() => {
     // Trigger onLoad after a brief delay if iframe is already loaded
@@ -33,6 +34,24 @@ function PDFIframe({
 
     return () => clearTimeout(timer);
   }, [pdfUrl, onLoad, isReady]);
+
+  // Force reload on window resize
+  useEffect(() => {
+    let resizeTimer: NodeJS.Timeout;
+
+    const handleResize = () => {
+      clearTimeout(resizeTimer);
+      resizeTimer = setTimeout(() => {
+        setRefreshKey(prev => prev + 1);
+      }, 300); // Debounce resize events
+    };
+
+    window.addEventListener('resize', handleResize);
+    return () => {
+      window.removeEventListener('resize', handleResize);
+      clearTimeout(resizeTimer);
+    };
+  }, []);
 
   return (
     <div
@@ -53,10 +72,12 @@ function PDFIframe({
         className="bg-white shadow-2xl"
         style={{
           width: `${21 * scale}cm`,
+          maxWidth: '100%',
           minHeight: `${29.7 * scale}cm`,
         }}
       >
         <iframe
+          key={refreshKey}
           ref={iframeRef}
           src={`${pdfUrl}#view=FitH`}
           className="w-full h-full border-0"

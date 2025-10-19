@@ -33,7 +33,7 @@ type Props = {
 
 const createStyles = (colors: Props['themeColors'], settings: Props['settings']) => {
   // Base font size - scale appropriately for PDF
-  const baseFontSize = settings.fontSize * 0.75; // Increased from 0.65 to 0.75 for larger text
+  const baseFontSize = settings.fontSize * 0.8 ; // Increased from 0.65 to 0.75 for larger text
   const scaleFactor = baseFontSize / 10; // Relative to default 10pt
 
   return StyleSheet.create({
@@ -46,28 +46,28 @@ const createStyles = (colors: Props['themeColors'], settings: Props['settings'])
       color: colors.text,
     },
     header: {
-      marginBottom: 20 * scaleFactor,
+      marginBottom: 10 * scaleFactor,
     },
     name: {
-      fontSize: 24 * scaleFactor,
+      fontSize: 22 * scaleFactor,
       fontWeight: 700,
       color: colors.text,
-      marginBottom: 5 * scaleFactor,
+      marginBottom: 2 * scaleFactor,
       lineHeight: 1.2,
     },
     title: {
-      fontSize: 13 * scaleFactor,
+      fontSize: 12 * scaleFactor,
       color: colors.primary,
-      marginBottom: 12 * scaleFactor,
+      marginBottom: 5 * scaleFactor,
       lineHeight: 1.3,
     },
     contactRow: {
       flexDirection: 'row',
       flexWrap: 'wrap',
-      gap: 12 * scaleFactor,
+      gap: 5 * scaleFactor,
       fontSize: 9 * scaleFactor,
     color: colors.secondary,
-    marginBottom: 8 * scaleFactor,
+    marginBottom: 5 * scaleFactor,
   },
   contactItem: {
     flexDirection: 'row',
@@ -77,10 +77,10 @@ const createStyles = (colors: Props['themeColors'], settings: Props['settings'])
     fontSize: 9 * scaleFactor,
     lineHeight: 1.5,
     color: colors.text,
-    marginTop: 8 * scaleFactor,
+    marginTop: 5 * scaleFactor,
   },
   section: {
-    marginBottom: 16 * scaleFactor,
+    marginBottom: 10 * scaleFactor,
   },
   sectionTitle: {
     fontSize: 14 * scaleFactor,
@@ -92,7 +92,7 @@ const createStyles = (colors: Props['themeColors'], settings: Props['settings'])
     marginBottom: 8 * scaleFactor,
   },
   experienceItem: {
-    marginBottom: 12 * scaleFactor,
+    marginBottom: 10 * scaleFactor,
   },
   experienceHeader: {
     flexDirection: 'row',
@@ -137,7 +137,7 @@ const createStyles = (colors: Props['themeColors'], settings: Props['settings'])
     fontSize: 9 * scaleFactor,
   },
   educationItem: {
-    marginBottom: 8 * scaleFactor,
+    marginBottom: 5 * scaleFactor,
     flexDirection: 'row',
     justifyContent: 'space-between',
   },
@@ -187,13 +187,13 @@ const createStyles = (colors: Props['themeColors'], settings: Props['settings'])
     marginBottom: 4 * scaleFactor,
   },
   skillsSection: {
-    marginBottom: 12 * scaleFactor,
+    marginBottom: 5 * scaleFactor,
   },
   skillCategory: {
     fontSize: 9 * scaleFactor,
     fontWeight: 700,
     color: colors.secondary,
-    marginBottom: 4 * scaleFactor,
+    marginBottom: 2 * scaleFactor,
   },
   skillBadgeRow: {
     flexDirection: 'row',
@@ -211,7 +211,7 @@ const createStyles = (colors: Props['themeColors'], settings: Props['settings'])
   certItem: {
     flexDirection: 'row',
     justifyContent: 'space-between',
-    marginBottom: 6 * scaleFactor,
+    marginBottom: 3 * scaleFactor,
   },
   certName: {
     fontSize: 10 * scaleFactor,
