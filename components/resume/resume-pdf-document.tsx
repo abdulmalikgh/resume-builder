@@ -1,7 +1,7 @@
 'use client';
 
 import { Document, Page, Text, View, StyleSheet, Font } from '@react-pdf/renderer';
-import { ResumeData } from '@/store/resume-store';
+import { ResumeData } from '@/types/resume';
 import { format } from 'date-fns';
 
 // Register fonts if needed

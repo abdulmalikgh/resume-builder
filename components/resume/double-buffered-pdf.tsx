@@ -20,7 +20,7 @@ export function DoubleBufferedPDF({ render }: Props) {
     frontElementRef.current = backElementRef.current
       ? cloneElement(backElementRef.current, {
           'data-ready': 'true',
-        })
+        } as any)
       : null;
 
     setElements([frontElementRef.current]);
@@ -34,7 +34,7 @@ export function DoubleBufferedPDF({ render }: Props) {
       const backElement = cloneElement(renderedElement, {
         key: lastKeyRef.current,
         'data-ready': 'false',
-      });
+      } as any);
       backElementRef.current = backElement;
       lastKeyRef.current++;
       console.log('DoubleBuffered: Showing both elements (front + back)');
